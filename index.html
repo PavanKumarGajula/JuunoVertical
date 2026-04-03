@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Laptop Migration – Display</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+
+  /* ── SLIDE FRAMES ── */
+  .stage {
+    position: relative;
+    width: 100vw; height: 100vh;
+    background: #000;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    border: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: none;
+    background: #000;
+  }
+
+  .slide.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── CINEMATIC BLACK OVERLAY ── */
+  /* This div fades in (black) then fades out — creating dissolve through black */
+  .curtain {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    z-index: 100;
+    pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  .curtain.closing { opacity: 1; }
+  .curtain.opening { opacity: 0; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #00D4E8, #73F3FF);
+    z-index: 200;
+    transition: none;
+    box-shadow: 0 0 8px rgba(0,212,232,0.6);
+  }
+  .progress-bar.running {
+    transition: width 8s linear;
+    width: 100%;
+  }
+
+  /* ── SLIDE COUNTER ── */
+  .counter {
+    position: fixed;
+    bottom: 18px;
+    right: 28px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: all 0.5s ease;
+    cursor: default;
+  }
+  .dot.active {
+    background: #00D4E8;
+    border-color: #00D4E8;
+    box-shadow: 0 0 8px rgba(0,212,232,0.7);
+    transform: scale(1.3);
+  }
+
+  /* ── SLIDE LABEL ── */
+  .slide-label {
+    position: fixed;
+    bottom: 14px;
+    left: 28px;
+    z-index: 200;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    transition: opacity 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <iframe class="slide visible" id="s0" src="slide1.html"></iframe>
+  <iframe class="slide"         id="s1" src="slide2.html"></iframe>
+  <iframe class="slide"         id="s2" src="slide3.html"></iframe>
+</div>
+
+<!-- Cinematic curtain -->
+<div class="curtain" id="curtain"></div>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Dots indicator -->
+<div class="counter" id="counter"></div>
+
+<!-- Slide label -->
+<div class="slide-label" id="slideLabel"></div>
+
+<script>
+  const SLIDE_DURATION = 5000;   // 5 seconds visible
+  const FADE_OUT_MS    = 700;    // fade to black
+  const FADE_IN_MS     = 700;    // fade from black
+
+  const slides = document.querySelectorAll('.slide');
+  const curtain = document.getElementById('curtain');
+  const progressBar = document.getElementById('progressBar');
+  const counter = document.getElementById('counter');
+  const slideLabel = document.getElementById('slideLabel');
+
+  const labels = [
+    'Slide 01 — Migration Overview',
+    'Slide 02 — Prepare Now',
+    'Slide 03 — Migration Night',
+    'Slide 04 — IT Support',
+  ];
+
+  let current = 0;
+  let timer = null;
+  let progressTimer = null;
+
+  /* ── BUILD DOTS ── */
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.id = 'dot-' + i;
+    counter.appendChild(dot);
+  });
+
+  /* ── SET LABEL ── */
+  function setLabel(i) {
+    slideLabel.textContent = labels[i] || '';
+  }
+
+  /* ── START PROGRESS BAR ── */
+  function startProgress() {
+    // Reset
+    progressBar.classList.remove('running');
+    progressBar.style.width = '0%';
+    // Force reflow
+    void progressBar.offsetWidth;
+    // Animate
+    progressBar.classList.add('running');
+  }
+
+  /* ── UPDATE DOTS ── */
+  function updateDots(i) {
+    document.querySelectorAll('.dot').forEach((d, idx) => {
+      d.classList.toggle('active', idx === i);
+    });
+  }
+
+  /* ── TRANSITION TO NEXT SLIDE ── */
+  function goToNext() {
+    const next = (current + 1) % slides.length;
+
+    // 1. Fade to black
+    curtain.classList.add('closing');
+
+    setTimeout(() => {
+      // 2. Swap slides while black
+      slides[current].classList.remove('visible');
+      slides[next].classList.add('visible');
+
+      updateDots(next);
+      setLabel(next);
+      current = next;
+
+      // 3. Fade from black
+      curtain.classList.remove('closing');
+      curtain.classList.add('opening');
+
+      setTimeout(() => {
+        curtain.classList.remove('opening');
+
+        // 4. Start progress bar for this slide
+        startProgress();
+
+        // 5. Schedule next transition
+        timer = setTimeout(goToNext, SLIDE_DURATION);
+
+      }, FADE_IN_MS);
+
+    }, FADE_OUT_MS);
+  }
+
+  /* ── INIT ── */
+  setLabel(0);
+  updateDots(0);
+  startProgress();
+  timer = setTimeout(goToNext, SLIDE_DURATION);
+</script>
+
+</body>
+</html>
