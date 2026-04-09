@@ -2,224 +2,1056 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<title>Laptop Migration – Display</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Perfect Attendance · Q1 2026 · Forgent Power Solutions</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Cinzel:wght@400;600;700;900&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg:       #04070A;
+  --cyan:     #00D4E8;
+  --cyanlt:   #73F3FF;
+  --gold:     #D4A843;
+  --goldlt:   #F5CC6A;
+  --white:    #F0F8FF;
+  --soft:     #A8C8D8;
+  --muted:    #5A7A8A;
+  --panel:    rgba(0,212,232,0.05);
+  --border:   rgba(0,212,232,0.15);
+}
 
-  html, body {
-    width: 100%; height: 100%;
-    overflow: hidden;
-    background: #000;
-  }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  /* ── SLIDE FRAMES ── */
-  .stage {
-    position: relative;
-    width: 100vw; height: 100vh;
-    background: #000;
-    overflow: hidden;
-  }
+html, body {
+  width:100%; height:100%;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  overflow-x:hidden;
+}
 
-  .slide {
-    position: absolute;
-    inset: 0;
-    width: 100%; height: 100%;
-    border: none;
-    opacity: 0;
-    pointer-events: none;
-    transition: none;
-    background: #000;
-  }
+/* ─── POSTER ─── */
+.poster {
+  width:1080px;
+  height:1920px;
+  position:relative;
+  overflow:hidden;
+  background: var(--bg);
+  flex-shrink:0;
+}
 
-  .slide.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
+/* Layered background */
+.poster::before {
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 900px 600px at 50% 8%,  rgba(0,212,232,0.13) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 400px at 10% 50%, rgba(0,130,170,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 90% 80%, rgba(0,100,150,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 800px 600px at 50% 110%,rgba(0,212,232,0.09) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
 
-  /* ── CINEMATIC BLACK OVERLAY ── */
-  /* This div fades in (black) then fades out — creating dissolve through black */
-  .curtain {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    opacity: 0;
-    z-index: 100;
-    pointer-events: none;
-    transition: opacity 0.7s ease;
-  }
-  .curtain.closing { opacity: 1; }
-  .curtain.opening { opacity: 0; }
+/* Subtle grid */
+.poster::after {
+  content:"";
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,232,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,232,0.025) 1px, transparent 1px);
+  background-size:54px 54px;
+  pointer-events:none; z-index:0;
+}
 
-  /* ── PROGRESS BAR ── */
-  .progress-bar {
-    position: fixed;
-    bottom: 0; left: 0;
-    height: 3px;
-    width: 0%;
-    background: linear-gradient(90deg, #00D4E8, #73F3FF);
-    z-index: 200;
-    transition: none;
-    box-shadow: 0 0 8px rgba(0,212,232,0.6);
-  }
-  .progress-bar.running {
-    transition: width 8s linear;
-    width: 100%;
-  }
+/* ─── CANVAS LAYERS ─── */
+canvas {
+  position:absolute; inset:0;
+  pointer-events:none;
+}
+#cvConfetti { z-index:60; }
+#cvFireworks { z-index:55; }
+#cvStars { z-index:52; }
 
-  /* ── SLIDE COUNTER ── */
-  .counter {
-    position: fixed;
-    bottom: 18px;
-    right: 28px;
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+/* ─── INNER FRAME ─── */
+.frame {
+  position:absolute;
+  inset:28px;
+  border:1px solid rgba(0,212,232,0.12);
+  pointer-events:none; z-index:2;
+}
+.frame-corner {
+  position:absolute;
+  width:60px; height:60px;
+  border-color: var(--cyan);
+  border-style:solid;
+  opacity:0.5;
+}
+.fc-tl { top:-1px; left:-1px; border-width:2px 0 0 2px; }
+.fc-tr { top:-1px; right:-1px; border-width:2px 2px 0 0; }
+.fc-bl { bottom:-1px; left:-1px; border-width:0 0 2px 2px; }
+.fc-br { bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
 
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.15);
-    transition: all 0.5s ease;
-    cursor: default;
-  }
-  .dot.active {
-    background: #00D4E8;
-    border-color: #00D4E8;
-    box-shadow: 0 0 8px rgba(0,212,232,0.7);
-    transform: scale(1.3);
-  }
+/* ─── TOP / BOTTOM ACCENT BARS ─── */
+.bar-top {
+  position:absolute; top:0; left:0; right:0; height:5px; z-index:10;
+  background:linear-gradient(90deg, transparent 0%, var(--gold) 20%, var(--cyan) 50%, var(--gold) 80%, transparent 100%);
+}
+.bar-bottom {
+  position:absolute; bottom:0; left:0; right:0; height:3px; z-index:10;
+  background:linear-gradient(90deg, transparent 0%, var(--cyan) 40%, transparent 100%);
+  opacity:0.6;
+}
 
-  /* ── SLIDE LABEL ── */
-  .slide-label {
-    position: fixed;
-    bottom: 14px;
-    left: 28px;
-    z-index: 200;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    letter-spacing: 0.14em;
-    color: rgba(255,255,255,0.2);
-    text-transform: uppercase;
-    transition: opacity 0.5s ease;
-  }
+/* ─── DECORATIVE CORNER GRAPHICS ─── */
+.deco-corner {
+  position:absolute; width:280px; height:280px;
+  opacity:0.22; pointer-events:none; z-index:3;
+}
+.deco-tl { top:-20px; left:-20px; }
+.deco-br { bottom:-20px; right:-20px; transform:rotate(180deg); }
+
+/* ─── TWINKLING STARS (CSS) ─── */
+.twinkle {
+  position:absolute; pointer-events:none; z-index:4;
+  animation:twinkle var(--dur,3s) ease-in-out var(--del,0s) infinite;
+}
+@keyframes twinkle {
+  0%,100% { opacity:.15; transform:scale(0.7) rotate(0deg); }
+  50%      { opacity:.9;  transform:scale(1.2) rotate(45deg); }
+}
+
+/* ─── CONTENT WRAPPER ─── */
+.content {
+  position:relative; z-index:5;
+  width:100%; height:100%;
+  display:flex; flex-direction:column;
+  padding:72px 90px 60px;
+}
+
+/* ─── HEADER ROW ─── */
+.header-row {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:44px;
+  opacity:0; animation:fadeUp 1s ease 0.1s forwards;
+}
+.co-name {
+  font-family:'Jost', sans-serif;
+  font-size:20px; font-weight:300;
+  letter-spacing:0.32em; text-transform:uppercase;
+  color:rgba(255,255,255,0.28);
+}
+.q-badge {
+  font-family:'Cinzel', serif;
+  font-size:18px; font-weight:600;
+  letter-spacing:0.18em;
+  color:var(--gold);
+  border:1px solid rgba(212,168,67,0.35);
+  border-radius:4px;
+  padding:8px 28px;
+  background:rgba(212,168,67,0.06);
+}
+
+/* ─── RULE ─── */
+.rule {
+  width:100%; height:1px; margin-bottom:56px;
+  background:linear-gradient(90deg, transparent, var(--gold) 30%, var(--cyan) 60%, transparent);
+  opacity:0.5;
+}
+
+/* ─── HERO ─── */
+.hero { text-align:center; }
+
+.eyebrow {
+  font-family:'Cinzel', serif;
+  font-size:19px; font-weight:400;
+  letter-spacing:0.4em; text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:30px;
+  opacity:0; animation:fadeUp 1s ease 0.2s forwards;
+}
+
+/* Trophy emoji row */
+.trophy-row {
+  display:flex; justify-content:center; align-items:center;
+  gap:24px; margin-bottom:36px;
+  opacity:0; animation:fadeUp 1s ease 0.35s forwards;
+}
+.trophy-emoji {
+  font-size:64px;
+  animation:trophyFloat var(--tf-dur, 3.5s) ease-in-out var(--tf-del,0s) infinite;
+  display:inline-block;
+  filter:drop-shadow(0 0 18px rgba(212,168,67,0.5));
+}
+@keyframes trophyFloat {
+  0%,100% { transform:translateY(0) rotate(-3deg); }
+  50%      { transform:translateY(-12px) rotate(3deg); }
+}
+
+/* Laurels */
+.laurel-row {
+  display:flex; justify-content:center; align-items:center;
+  gap:32px; margin-bottom:20px;
+  opacity:0; animation:fadeUp 1s ease 0.5s forwards;
+}
+
+/* Title */
+.title-perfect {
+  font-family:'Cormorant Garamond', serif;
+  font-size:156px; font-weight:700; line-height:0.85;
+  letter-spacing:-0.01em;
+  color:var(--white);
+  opacity:0; animation:fadeUp 1s ease 0.65s forwards;
+}
+.title-attendance {
+  font-family:'Cinzel', serif;
+  font-size:78px; font-weight:900; line-height:1;
+  letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--cyan);
+  text-shadow:0 0 40px rgba(0,212,232,0.35);
+  margin-top:8px;
+  opacity:0; animation:fadeUp 1s ease 0.8s forwards;
+}
+
+.sub-text {
+  font-family:'Jost', sans-serif;
+  font-size:24px; font-weight:200;
+  letter-spacing:0.12em;
+  color:rgba(255,255,255,0.38);
+  margin-top:18px;
+  opacity:0; animation:fadeUp 1s ease 0.95s forwards;
+}
+
+.period-line {
+  display:flex; align-items:center; justify-content:center;
+  gap:24px; margin-top:28px;
+  opacity:0; animation:fadeUp 1s ease 1.1s forwards;
+}
+.period-dash {
+  flex:1; max-width:140px; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(212,168,67,0.5));
+}
+.period-dash.right {
+  background:linear-gradient(90deg, rgba(212,168,67,0.5), transparent);
+}
+.period-text {
+  font-family:'Cinzel', serif;
+  font-size:22px; font-weight:600;
+  letter-spacing:0.22em;
+  color:var(--gold);
+}
+
+/* ─── SECTION DIVIDER ─── */
+.section-divider {
+  position:relative;
+  margin:60px 0 0;
+  display:flex; align-items:center; gap:20px;
+  opacity:0; animation:fadeUp 1s ease 1.25s forwards;
+}
+.sdiv-line {
+  flex:1; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(0,212,232,0.4), transparent);
+}
+.sdiv-diamond {
+  width:10px; height:10px;
+  background:var(--cyan);
+  transform:rotate(45deg);
+  box-shadow:0 0 14px rgba(0,212,232,0.6);
+}
+
+/* ─── DEPARTMENT ZONE ─── */
+.dept-zone {
+  flex:1;
+  position:relative;
+  margin-top:0;
+  overflow:hidden;
+}
+
+.dept-panel {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  padding:40px 0 20px;
+  opacity:0;
+  transform:translateX(80px);
+  transition:opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+}
+.dept-panel.active {
+  opacity:1; transform:translateX(0); pointer-events:auto;
+}
+.dept-panel.exit {
+  opacity:0; transform:translateX(-80px);
+}
+
+.dept-header {
+  display:flex; align-items:center; gap:18px;
+  margin-bottom:24px;
+}
+.dept-icon-wrap {
+  width:52px; height:52px;
+  border-radius:50%;
+  border:1px solid rgba(0,212,232,0.3);
+  background:rgba(0,212,232,0.07);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 24px rgba(0,212,232,0.1);
+}
+.dept-icon-wrap svg { width:24px; height:24px; stroke:var(--cyanlt); }
+.dept-title {
+  font-family:'Cinzel', serif;
+  font-size:30px; font-weight:600;
+  letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--cyanlt);
+}
+.dept-count {
+  margin-left:auto;
+  font-family:'Jost', sans-serif;
+  font-size:16px; font-weight:300;
+  letter-spacing:0.1em;
+  color:rgba(255,255,255,0.22);
+}
+
+.dept-rule {
+  width:100%; height:1px; margin-bottom:32px;
+  background:linear-gradient(90deg, var(--cyan), rgba(0,212,232,0.1), transparent);
+}
+
+
+
+/* Names grid */
+.names {
+  display:grid;
+  gap:14px 20px;
+}
+.names.two { grid-template-columns:1fr 1fr; }
+.names.one { grid-template-columns:1fr; max-width:600px; }
+
+/* ── Name card ── */
+.name-item {
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 18px;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(0,212,232,0.07) 0%, rgba(0,212,232,0.03) 100%);
+  border:1px solid rgba(0,212,232,0.22);
+  overflow:hidden;
+  opacity:1;
+  transform:translateY(0) scale(1);
+  transition:opacity 0.55s cubic-bezier(0.4,0,0.2,1), transform 0.55s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 2px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.name-item.hidden {
+  opacity:0;
+  transform:translateY(22px) scale(0.97);
+}
+.dept-panel.active .name-item { opacity:1; transform:translateY(0) scale(1); }
+
+/* Shimmer sweep overlay */
+.name-item::after {
+  content:"";
+  position:absolute;
+  top:0; left:-120%;
+  width:80%; height:100%;
+  background:linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(0,212,232,0.18) 50%,
+    rgba(115,243,255,0.22) 55%,
+    rgba(0,212,232,0.08) 60%,
+    transparent 80%
+  );
+  transform:skewX(-15deg);
+  pointer-events:none;
+}
+.name-item.shimmer::after {
+  animation:shimmerSweep 0.9s ease forwards;
+}
+@keyframes shimmerSweep {
+  0%   { left:-120%; }
+  100% { left:160%; }
+}
+
+/* Medal badge */
+.name-medal {
+  flex-shrink:0;
+  width:32px; height:32px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, rgba(115,243,255,0.2), rgba(0,212,232,0.06));
+  border:1px solid rgba(0,212,232,0.45);
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px;
+  animation:medalPulse 4s ease-in-out infinite;
+}
+@keyframes medalPulse {
+  0%,100% { box-shadow:0 0 8px rgba(0,212,232,0.2); }
+  50%      { box-shadow:0 0 20px rgba(0,212,232,0.5); }
+}
+.name-text {
+  font-family:'Cinzel', serif;
+  font-size:22px;
+  font-weight:600;
+  line-height:1.25;
+  color:#F0F8FF;
+  letter-spacing:0.04em;
+  text-shadow:0 0 18px rgba(0,212,232,0.3);
+  position:relative;
+}
+.names.one .name-item { padding:20px 28px; }
+.names.one .name-text { font-size:30px; }
+.names.one .name-medal { width:40px; height:40px; font-size:20px; }
+
+/* ─── PROGRESS ─── */
+.progress-wrap {
+  position:absolute; bottom:44px; left:0; right:0;
+  z-index:6;
+}
+.progress-bar {
+  width:100%; height:3px;
+  background:rgba(255,255,255,0.07);
+  border-radius:2px; overflow:hidden;
+  margin-bottom:16px;
+}
+.progress-fill {
+  height:100%; width:0%;
+  background:linear-gradient(90deg, var(--gold), var(--cyan));
+  border-radius:2px;
+  box-shadow:0 0 8px rgba(0,212,232,0.4);
+}
+.dept-dots {
+  display:flex; justify-content:center; gap:10px;
+}
+.ddot {
+  height:3px; border-radius:2px;
+  background:rgba(255,255,255,0.15);
+  transition:width 0.4s ease, background 0.4s ease;
+  width:24px;
+}
+.ddot.active {
+  width:48px;
+  background:var(--cyan);
+  box-shadow:0 0 8px rgba(0,212,232,0.5);
+}
+
+/* ─── FOOTER ─── */
+.footer {
+  padding-top:32px;
+  text-align:center;
+  border-top:1px solid rgba(255,255,255,0.06);
+  opacity:0; animation:fadeUp 1s ease 1.4s forwards;
+}
+.footer-quote {
+  font-family:'Cormorant Garamond', serif;
+  font-size:34px; font-weight:600; font-style:italic;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.02em;
+  line-height:1.3;
+}
+.footer-quote em { color:var(--gold); font-style:italic; }
+.footer-ornament {
+  margin-top:14px;
+  display:flex; justify-content:center; align-items:center; gap:12px;
+}
+.orn-line { width:60px; height:1px; background:rgba(212,168,67,0.3); }
+.orn-diamond {
+  width:6px; height:6px;
+  background:var(--gold); transform:rotate(45deg);
+  opacity:0.6;
+}
+
+/* ─── KEYFRAMES ─── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(28px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes celebrate {
+  0%   { opacity:0; transform:translateY(-8px) scale(0.9); }
+  20%  { opacity:1; transform:translateY(0) scale(1); }
+  80%  { opacity:1; }
+  100% { opacity:0; transform:translateY(8px) scale(0.95); }
+}
+.celebrate-flash {
+  position:absolute;
+  top:38%;
+  left:0; right:0; text-align:center;
+  font-family:'Cinzel', serif;
+  font-size:22px; font-weight:600;
+  letter-spacing:0.35em; text-transform:uppercase;
+  color:var(--gold);
+  text-shadow:0 0 20px rgba(212,168,67,0.5);
+  pointer-events:none; z-index:8;
+  opacity:0;
+}
+.celebrate-flash.show {
+  animation:celebrate 1.2s ease forwards;
+}
 </style>
 </head>
 <body>
+<div class="poster" id="poster">
 
-<div class="stage">
-  <iframe class="slide visible" id="s0" src="slide1.html"></iframe>
-  <iframe class="slide"         id="s1" src="slide2.html"></iframe>
-  <iframe class="slide"         id="s2" src="slide3.html"></iframe>
-</div>
+  <!-- Canvas layers -->
+  <canvas id="cvConfetti"></canvas>
+  <canvas id="cvFireworks"></canvas>
+  <canvas id="cvStars"></canvas>
 
-<!-- Cinematic curtain -->
-<div class="curtain" id="curtain"></div>
+  <!-- Structural -->
+  <div class="bar-top"></div>
+  <div class="bar-bottom"></div>
+  <div class="frame">
+    <div class="frame-corner fc-tl"></div>
+    <div class="frame-corner fc-tr"></div>
+    <div class="frame-corner fc-bl"></div>
+    <div class="frame-corner fc-br"></div>
+  </div>
 
-<!-- Progress bar -->
-<div class="progress-bar" id="progressBar"></div>
+  <!-- Corner decorative SVGs -->
+  <svg class="deco-corner deco-tl" viewBox="0 0 280 280" fill="none">
+    <path d="M20 200C60 140 120 90 200 60" stroke="url(#dc1)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M40 240C84 172 140 124 230 94" stroke="url(#dc1)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+    <path d="M20 140H80" stroke="url(#dc1)" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+    <path d="M20 160H55" stroke="url(#dc1)" stroke-width="1" stroke-linecap="round" opacity="0.25"/>
+    <circle cx="200" cy="60" r="3" fill="#73F3FF" opacity="0.5"/>
+    <circle cx="230" cy="94" r="2" fill="#00D4E8" opacity="0.4"/>
+    <defs>
+      <linearGradient id="dc1" x1="20" y1="60" x2="230" y2="240" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#73F3FF"/>
+        <stop offset="1" stop-color="#00D4E8" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
-<!-- Dots indicator -->
-<div class="counter" id="counter"></div>
+  <svg class="deco-corner deco-br" viewBox="0 0 280 280" fill="none">
+    <path d="M20 200C60 140 120 90 200 60" stroke="url(#dc2)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M40 240C84 172 140 124 230 94" stroke="url(#dc2)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+    <path d="M20 140H80" stroke="url(#dc2)" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+    <path d="M20 160H55" stroke="url(#dc2)" stroke-width="1" stroke-linecap="round" opacity="0.25"/>
+    <circle cx="200" cy="60" r="3" fill="#D4A843" opacity="0.5"/>
+    <defs>
+      <linearGradient id="dc2" x1="20" y1="60" x2="230" y2="240" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#D4A843"/>
+        <stop offset="1" stop-color="#00D4E8" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
-<!-- Slide label -->
-<div class="slide-label" id="slideLabel"></div>
+  <!-- CSS Twinkling star accents -->
+  <svg class="twinkle" style="top:170px;left:110px;width:16px;height:16px;--dur:3.2s;--del:0s" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.6 10.4L22 12L13.6 13.6L12 22L10.4 13.6L2 12L10.4 10.4Z" stroke="#73F3FF" stroke-width="1.2"/></svg>
+  <svg class="twinkle" style="top:200px;right:130px;width:12px;height:12px;--dur:2.8s;--del:0.6s" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.6 10.4L22 12L13.6 13.6L12 22L10.4 13.6L2 12L10.4 10.4Z" stroke="#D4A843" stroke-width="1.2"/></svg>
+  <svg class="twinkle" style="top:420px;left:78px;width:10px;height:10px;--dur:4s;--del:1.1s" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.6 10.4L22 12L13.6 13.6L12 22L10.4 13.6L2 12L10.4 10.4Z" stroke="#73F3FF" stroke-width="1.2"/></svg>
+  <svg class="twinkle" style="top:460px;right:88px;width:14px;height:14px;--dur:3.6s;--del:1.8s" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.6 10.4L22 12L13.6 13.6L12 22L10.4 13.6L2 12L10.4 10.4Z" stroke="#D4A843" stroke-width="1.5"/></svg>
+  <svg class="twinkle" style="bottom:380px;left:96px;width:11px;height:11px;--dur:3s;--del:2.3s" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.6 10.4L22 12L13.6 13.6L12 22L10.4 13.6L2 12L10.4 10.4Z" stroke="#73F3FF" stroke-width="1.2"/></svg>
+  <svg class="twinkle" style="bottom:320px;right:104px;width:13px;height:13px;--dur:3.4s;--del:0.4s" viewBox="0 0 24 24" fill="none"><path d="M12 2L13.6 10.4L22 12L13.6 13.6L12 22L10.4 13.6L2 12L10.4 10.4Z" stroke="#D4A843" stroke-width="1.2"/></svg>
+
+  <!-- Celebrate flash -->
+  <div class="celebrate-flash" id="celebFlash">✦ &nbsp; Congratulations &nbsp; ✦</div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Header -->
+    <div class="header-row">
+      <div class="co-name">Forgent Power Solutions</div>
+      <div class="q-badge">Q1 · 2026</div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="eyebrow">✦ &nbsp; Employee Recognition &nbsp; ✦</div>
+
+      <!-- Trophy emoji row -->
+      <div class="trophy-row">
+        <span class="trophy-emoji" style="--tf-dur:3.8s;--tf-del:0s;font-size:52px;">🌟</span>
+        <span class="trophy-emoji" style="--tf-dur:3.2s;--tf-del:0.4s;">🏆</span>
+        <span class="trophy-emoji" style="--tf-dur:4s;--tf-del:0.8s;font-size:52px;">🌟</span>
+      </div>
+
+      <!-- Laurels -->
+      <div class="laurel-row">
+        <svg width="110" height="90" viewBox="0 0 120 100" fill="none" opacity="0.65">
+          <path d="M100 95C65 80 44 52 40 18" stroke="url(#la1)" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M88 86C68 74 54 57 50 40" stroke="url(#la1)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M78 75C65 66 57 56 54 46" stroke="url(#la1)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M85 76C79 64 68 59 60 57" stroke="url(#la1)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M94 87C91 74 82 68 73 66" stroke="url(#la1)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M72 66C66 57 59 52 51 50" stroke="url(#la1)" stroke-width="2.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="la1" x1="40" y1="18" x2="100" y2="95" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#F5CC6A"/>
+              <stop offset="0.5" stop-color="#D4A843"/>
+              <stop offset="1" stop-color="#00D4E8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <svg width="110" height="90" viewBox="0 0 120 100" fill="none" opacity="0.65">
+          <path d="M20 95C55 80 76 52 80 18" stroke="url(#la2)" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M32 86C52 74 66 57 70 40" stroke="url(#la2)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M42 75C55 66 63 56 66 46" stroke="url(#la2)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M35 76C41 64 52 59 60 57" stroke="url(#la2)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M26 87C29 74 38 68 47 66" stroke="url(#la2)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M48 66C54 57 61 52 69 50" stroke="url(#la2)" stroke-width="2.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="la2" x1="80" y1="18" x2="20" y2="95" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#F5CC6A"/>
+              <stop offset="0.5" stop-color="#D4A843"/>
+              <stop offset="1" stop-color="#00D4E8"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <div class="title-perfect">Perfect</div>
+      <div class="title-attendance">Attendance</div>
+      <div class="sub-text">Celebrating those who showed up every single day</div>
+
+      <div class="period-line">
+        <div class="period-dash"></div>
+        <div class="period-text">January – March 2026</div>
+        <div class="period-dash right"></div>
+      </div>
+    </div>
+
+    <!-- Section divider -->
+    <div class="section-divider">
+      <div class="sdiv-line"></div>
+      <div class="sdiv-diamond"></div>
+      <div class="sdiv-line"></div>
+    </div>
+
+    <!-- Department zone -->
+    <div class="dept-zone" id="deptZone">
+
+      <!-- Assembly -->
+      <div class="dept-panel" data-dept="0">
+        <div class="dept-header">
+          <div class="dept-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+            </svg>
+          </div>
+          <div class="dept-title">Assembly</div>
+          <div class="dept-count">9 Honorees</div>
+        </div>
+        <div class="dept-rule"></div>
+        <div class="names two">
+          <div class="name-item" style="transition-delay:.06s"><div class="name-medal">🏅</div><span class="name-text">Anderson, Jarrel</span></div>
+          <div class="name-item" style="transition-delay:.12s"><div class="name-medal">🏅</div><span class="name-text">Arvalo Bravo, Yuri</span></div>
+          <div class="name-item" style="transition-delay:.18s"><div class="name-medal">🏅</div><span class="name-text">Miller, John-Arthur</span></div>
+          <div class="name-item" style="transition-delay:.24s"><div class="name-medal">🏅</div><span class="name-text">Mohammad, M. Adeeb</span></div>
+          <div class="name-item" style="transition-delay:.30s"><div class="name-medal">🏅</div><span class="name-text">Mohammad, M. Gul</span></div>
+          <div class="name-item" style="transition-delay:.36s"><div class="name-medal">🏅</div><span class="name-text">Mohammad, M. Haseeb</span></div>
+          <div class="name-item" style="transition-delay:.42s"><div class="name-medal">🏅</div><span class="name-text">Rosario, Jeremy</span></div>
+          <div class="name-item" style="transition-delay:.48s"><div class="name-medal">🏅</div><span class="name-text">Sandoval, Joel</span></div>
+          <div class="name-item" style="transition-delay:.54s"><div class="name-medal">🏅</div><span class="name-text">Youssef, Rachid</span></div>
+        </div>
+      </div>
+
+      <!-- Manufacturing -->
+      <div class="dept-panel" data-dept="1">
+        <div class="dept-header">
+          <div class="dept-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 18h18"/><path d="M6 18V9l6-4 6 4v9"/><path d="M9 18v-5h6v5"/>
+            </svg>
+          </div>
+          <div class="dept-title">Mfg / Fabrication</div>
+          <div class="dept-count">4 Honorees</div>
+        </div>
+        <div class="dept-rule"></div>
+        <div class="names two">
+          <div class="name-item" style="transition-delay:.06s"><div class="name-medal">🏅</div><span class="name-text">Agboola, Adewale</span></div>
+          <div class="name-item" style="transition-delay:.12s"><div class="name-medal">🏅</div><span class="name-text">Fernandez F., David</span></div>
+          <div class="name-item" style="transition-delay:.18s"><div class="name-medal">🏅</div><span class="name-text">Keene, Nicklaus</span></div>
+          <div class="name-item" style="transition-delay:.24s"><div class="name-medal">🏅</div><span class="name-text">Walker, Jamaal</span></div>
+        </div>
+      </div>
+
+      <!-- Quality -->
+      <div class="dept-panel" data-dept="2">
+        <div class="dept-header">
+          <div class="dept-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l7 4v5c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V7z"/>
+              <path d="M9.5 12.5l1.7 1.7 3.3-3.7"/>
+            </svg>
+          </div>
+          <div class="dept-title">Quality</div>
+          <div class="dept-count">1 Honoree</div>
+        </div>
+        <div class="dept-rule"></div>
+        <div class="names one">
+          <div class="name-item" style="transition-delay:.06s"><div class="name-medal">🏆</div><span class="name-text">Hashemi, Mohammad</span></div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="pFill"></div></div>
+        <div class="dept-dots">
+          <div class="ddot active" data-i="0"></div>
+          <div class="ddot" data-i="1"></div>
+          <div class="ddot" data-i="2"></div>
+        </div>
+      </div>
+
+    </div><!-- /dept-zone -->
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-quote">"Your dedication powers <em>everything we build</em>"</div>
+      <div class="footer-ornament">
+        <div class="orn-line"></div>
+        <div class="orn-diamond"></div>
+        <div class="orn-line"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /poster -->
 
 <script>
-  const SLIDE_DURATION = 5000;   // 5 seconds visible
-  const FADE_OUT_MS    = 700;    // fade to black
-  const FADE_IN_MS     = 700;    // fade from black
+const poster = document.getElementById('poster');
+const W = poster.offsetWidth  || 1080;
+const H = poster.offsetHeight || 1920;
 
-  const slides = document.querySelectorAll('.slide');
-  const curtain = document.getElementById('curtain');
-  const progressBar = document.getElementById('progressBar');
-  const counter = document.getElementById('counter');
-  const slideLabel = document.getElementById('slideLabel');
+// ─── CANVAS SETUP ───────────────────────────────────
+function initCanvas(id){
+  const c = document.getElementById(id);
+  c.width = W; c.height = H;
+  return c.getContext('2d');
+}
+const ctxC = initCanvas('cvConfetti');
+const ctxF = initCanvas('cvFireworks');
+const ctxS = initCanvas('cvStars');
 
-  const labels = [
-    'Slide 01 — Migration Overview',
-    'Slide 02 — Prepare Now',
-    'Slide 03 — Migration Night',
-    'Slide 04 — IT Support',
-  ];
+// ─── CONFETTI ───────────────────────────────────────
+const CONF_COLORS = ['#00D4E8','#73F3FF','#D4A843','#F5CC6A','#FFFFFF','#FF6B9D','#00FF9F','#FF9F43'];
+const confetti = [];
 
-  let current = 0;
-  let timer = null;
-  let progressTimer = null;
+class Conf {
+  constructor(burst){
+    this.x = burst ? burst.x : Math.random()*W;
+    this.y = burst ? burst.y : -20;
+    this.w = Math.random()*10+5;
+    this.h = Math.random()*5+2;
+    this.color = CONF_COLORS[Math.floor(Math.random()*CONF_COLORS.length)];
+    this.rot = Math.random()*Math.PI*2;
+    this.rspd = (Math.random()-.5)*0.18;
+    this.vx = (burst ? (Math.random()-.5)*14 : (Math.random()-.5)*3);
+    this.vy = burst ? Math.random()*-18-4 : Math.random()*4+2;
+    this.life = 1;
+    this.decay = Math.random()*0.007+0.003;
+    this.gravity = 0.35;
+  }
+  update(){
+    this.x += this.vx; this.y += this.vy;
+    this.vy += this.gravity;
+    this.vx *= 0.98;
+    this.rot += this.rspd;
+    this.life -= this.decay;
+  }
+  draw(ctx){
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.life);
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(-this.w/2,-this.h/2,this.w,this.h);
+    ctx.restore();
+  }
+  dead(){ return this.life <= 0 || this.y > H+30; }
+}
 
-  /* ── BUILD DOTS ── */
-  slides.forEach((_, i) => {
-    const dot = document.createElement('div');
-    dot.className = 'dot' + (i === 0 ? ' active' : '');
-    dot.id = 'dot-' + i;
-    counter.appendChild(dot);
+function spawnConfettiBurst(x, y, count){
+  for(let i=0;i<count;i++) confetti.push(new Conf({x,y}));
+}
+
+// Opening burst
+setTimeout(()=>{
+  spawnConfettiBurst(W*0.25, H*0.3, 60);
+  spawnConfettiBurst(W*0.75, H*0.3, 60);
+  spawnConfettiBurst(W*0.5,  H*0.2, 80);
+  spawnConfettiBurst(W*0.1,  H*0.4, 40);
+  spawnConfettiBurst(W*0.9,  H*0.4, 40);
+}, 400);
+
+// Rain confetti for 8s
+let confettiRain = true;
+setTimeout(()=>{ confettiRain = false; }, 8000);
+
+// ─── FIREWORKS ──────────────────────────────────────
+const fireworks = [];
+
+class Particle {
+  constructor(x,y,angle,speed,color){
+    this.x=x; this.y=y;
+    this.vx=Math.cos(angle)*speed;
+    this.vy=Math.sin(angle)*speed;
+    this.color=color;
+    this.life=1;
+    this.decay=Math.random()*0.018+0.01;
+    this.size=Math.random()*3+1.5;
+    this.trail=[];
+  }
+  update(){
+    this.trail.push({x:this.x,y:this.y});
+    if(this.trail.length>8) this.trail.shift();
+    this.x+=this.vx; this.y+=this.vy;
+    this.vy+=0.12; this.vx*=0.97;
+    this.life-=this.decay;
+  }
+  draw(ctx){
+    ctx.save();
+    // Trail
+    for(let i=0;i<this.trail.length;i++){
+      ctx.globalAlpha=(i/this.trail.length)*this.life*0.4;
+      ctx.beginPath();
+      ctx.arc(this.trail[i].x,this.trail[i].y,this.size*0.5,0,Math.PI*2);
+      ctx.fillStyle=this.color; ctx.fill();
+    }
+    ctx.globalAlpha=Math.max(0,this.life);
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=this.color; ctx.fill();
+    ctx.restore();
+  }
+  dead(){ return this.life<=0; }
+}
+
+class Firework {
+  constructor(){
+    this.x = W*0.15 + Math.random()*(W*0.7);
+    this.y = H*0.05 + Math.random()*(H*0.45);
+    this.particles = [];
+    const colors = [
+      ['#73F3FF','#00D4E8','#ffffff'],
+      ['#F5CC6A','#D4A843','#FFE0A0'],
+      ['#FF6B9D','#FF9F43','#FFD700'],
+      ['#00FF9F','#00D4E8','#73F3FF'],
+    ][Math.floor(Math.random()*4)];
+    const count = 80+Math.floor(Math.random()*60);
+    for(let i=0;i<count;i++){
+      const angle = (Math.PI*2/count)*i + Math.random()*0.3;
+      const speed = Math.random()*9+4;
+      const col = colors[Math.floor(Math.random()*colors.length)];
+      this.particles.push(new Particle(this.x,this.y,angle,speed,col));
+    }
+    // Flash
+    this.flash = 1;
+  }
+  update(){
+    this.flash = Math.max(0, this.flash-0.12);
+    this.particles.forEach(p=>p.update());
+    this.particles = this.particles.filter(p=>!p.dead());
+  }
+  draw(ctx){
+    if(this.flash > 0){
+      ctx.save();
+      ctx.globalAlpha = this.flash*0.3;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,60,0,Math.PI*2);
+      const g = ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,60);
+      g.addColorStop(0,'#ffffff'); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fill();
+      ctx.restore();
+    }
+    this.particles.forEach(p=>p.draw(ctx));
+  }
+  dead(){ return this.particles.length===0; }
+}
+
+// Schedule fireworks
+const fwSchedule = [600,1400,2200,3100,4000,5200,6400,7600,9000,11000,14000,17000,20000];
+fwSchedule.forEach(t=>{
+  setTimeout(()=>fireworks.push(new Firework()), t);
+});
+// Recurring
+setInterval(()=>{ if(Math.random()<0.7) fireworks.push(new Firework()); }, 8000);
+
+// ─── SHOOTING STARS ─────────────────────────────────
+const shootingStars = [];
+
+class ShootingStar {
+  constructor(){
+    this.reset();
+  }
+  reset(){
+    // Start from random top-left area
+    this.x = Math.random()*W*0.6;
+    this.y = Math.random()*H*0.4;
+    const angle = Math.PI/4 + (Math.random()-.5)*0.4; // ~45 degrees
+    const speed = 12+Math.random()*10;
+    this.vx = Math.cos(angle)*speed;
+    this.vy = Math.sin(angle)*speed;
+    this.len = 80+Math.random()*120;
+    this.life = 1;
+    this.decay = 0.035+Math.random()*0.02;
+    this.color = Math.random()<0.5 ? '#73F3FF' : '#F5CC6A';
+    this.size = 1.5+Math.random()*1.5;
+  }
+  update(){
+    this.x+=this.vx; this.y+=this.vy;
+    this.life-=this.decay;
+  }
+  draw(ctx){
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,this.life)*0.9;
+    const grad = ctx.createLinearGradient(
+      this.x-this.vx*6, this.y-this.vy*6,
+      this.x, this.y
+    );
+    grad.addColorStop(0,'transparent');
+    grad.addColorStop(1,this.color);
+    ctx.strokeStyle=grad;
+    ctx.lineWidth=this.size;
+    ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(this.x-this.vx*6, this.y-this.vy*6);
+    ctx.lineTo(this.x, this.y);
+    ctx.stroke();
+    // Head glow
+    ctx.globalAlpha=Math.max(0,this.life)*0.8;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size*1.5,0,Math.PI*2);
+    ctx.fillStyle=this.color; ctx.fill();
+    ctx.restore();
+  }
+  dead(){ return this.life<=0 || this.x>W+100 || this.y>H+100; }
+}
+
+// Spawn shooting stars periodically
+function spawnShootingStar(){
+  shootingStars.push(new ShootingStar());
+}
+setTimeout(()=>spawnShootingStar(), 1200);
+setTimeout(()=>spawnShootingStar(), 2800);
+setTimeout(()=>spawnShootingStar(), 4500);
+setInterval(()=>{
+  if(Math.random()<0.65) spawnShootingStar();
+}, 3500);
+
+// ─── MAIN ANIMATION LOOP ────────────────────────────
+function loop(){
+  // Confetti
+  ctxC.clearRect(0,0,W,H);
+  if(confettiRain && Math.random()<0.6){
+    confetti.push(new Conf(null));
+  }
+  for(let i=confetti.length-1;i>=0;i--){
+    confetti[i].update(); confetti[i].draw(ctxC);
+    if(confetti[i].dead()) confetti.splice(i,1);
+  }
+
+  // Fireworks
+  ctxF.clearRect(0,0,W,H);
+  for(let i=fireworks.length-1;i>=0;i--){
+    fireworks[i].update(); fireworks[i].draw(ctxF);
+    if(fireworks[i].dead()) fireworks.splice(i,1);
+  }
+
+  // Shooting stars
+  ctxS.clearRect(0,0,W,H);
+  for(let i=shootingStars.length-1;i>=0;i--){
+    shootingStars[i].update(); shootingStars[i].draw(ctxS);
+    if(shootingStars[i].dead()) shootingStars.splice(i,1);
+  }
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+// ─── DEPT CYCLING ───────────────────────────────────
+const panels   = document.querySelectorAll('.dept-panel');
+const dots     = document.querySelectorAll('.ddot');
+const pFill    = document.getElementById('pFill');
+const celFlash = document.getElementById('celebFlash');
+const DURATION = 5000;
+let current = 0;
+let cycleStart = null;
+
+function showDept(idx){
+  // Exit old
+  panels.forEach((p,i)=>{
+    if(i===current && i!==idx){
+      p.classList.add('exit');
+      setTimeout(()=>p.classList.remove('active','exit'),700);
+    }
   });
+  current = idx;
+  const panel = panels[idx];
 
-  /* ── SET LABEL ── */
-  function setLabel(i) {
-    slideLabel.textContent = labels[i] || '';
-  }
+  // Hide names with class so stagger transition works on reveal
+  panel.querySelectorAll('.name-item').forEach(n => n.classList.add('hidden'));
 
-  /* ── START PROGRESS BAR ── */
-  function startProgress() {
-    // Reset
-    progressBar.classList.remove('running');
-    progressBar.style.width = '0%';
-    // Force reflow
-    void progressBar.offsetWidth;
-    // Animate
-    progressBar.classList.add('running');
-  }
-
-  /* ── UPDATE DOTS ── */
-  function updateDots(i) {
-    document.querySelectorAll('.dot').forEach((d, idx) => {
-      d.classList.toggle('active', idx === i);
+  setTimeout(()=>{
+    panel.classList.add('active');
+    panel.querySelectorAll('.name-item').forEach((n, i)=>{
+      setTimeout(()=>{
+        n.classList.remove('hidden');
+        // Trigger shimmer sweep after card appears
+        setTimeout(()=>{
+          n.classList.remove('shimmer');
+          void n.offsetWidth;
+          n.classList.add('shimmer');
+        }, 100);
+      }, 80 + i*60);
     });
+  }, 60);
+
+  dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+
+  // Flash
+  celFlash.classList.remove('show');
+  void celFlash.offsetWidth;
+  celFlash.classList.add('show');
+
+  // Burst confetti on transition
+  spawnConfettiBurst(W*0.3, H*0.62, 25);
+  spawnConfettiBurst(W*0.7, H*0.62, 25);
+
+  // Progress
+  pFill.style.transition='none';
+  pFill.style.width='0%';
+  void pFill.offsetWidth;
+  pFill.style.transition=`width ${DURATION}ms linear`;
+  pFill.style.width='100%';
+
+  cycleStart = performance.now();
+}
+
+function cycleTick(ts){
+  if(!cycleStart) cycleStart=ts;
+  if(ts-cycleStart >= DURATION){
+    showDept((current+1)%panels.length);
   }
+  requestAnimationFrame(cycleTick);
+}
 
-  /* ── TRANSITION TO NEXT SLIDE ── */
-  function goToNext() {
-    const next = (current + 1) % slides.length;
-
-    // 1. Fade to black
-    curtain.classList.add('closing');
-
-    setTimeout(() => {
-      // 2. Swap slides while black
-      slides[current].classList.remove('visible');
-      slides[next].classList.add('visible');
-
-      updateDots(next);
-      setLabel(next);
-      current = next;
-
-      // 3. Fade from black
-      curtain.classList.remove('closing');
-      curtain.classList.add('opening');
-
-      setTimeout(() => {
-        curtain.classList.remove('opening');
-
-        // 4. Start progress bar for this slide
-        startProgress();
-
-        // 5. Schedule next transition
-        timer = setTimeout(goToNext, SLIDE_DURATION);
-
-      }, FADE_IN_MS);
-
-    }, FADE_OUT_MS);
-  }
-
-  /* ── INIT ── */
-  setLabel(0);
-  updateDots(0);
-  startProgress();
-  timer = setTimeout(goToNext, SLIDE_DURATION);
+// Start
+setTimeout(()=>{
+  panels[0].classList.add('active');
+  // Shimmer each name on first load
+  panels[0].querySelectorAll('.name-item').forEach((n,i)=>{
+    setTimeout(()=>{
+      n.classList.remove('shimmer');
+      void n.offsetWidth;
+      n.classList.add('shimmer');
+    }, 1600 + i*80);
+  });
+  pFill.style.transition=`width ${DURATION}ms linear`;
+  pFill.style.width='100%';
+  cycleStart = performance.now();
+  requestAnimationFrame(cycleTick);
+}, 1400);
 </script>
-
 </body>
 </html>
